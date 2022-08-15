@@ -86,7 +86,7 @@ namespace assembler
   }
   void Manager::ProcessSkip(int literal)
   {
-
+ 
   }
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
   {
