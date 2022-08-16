@@ -32,10 +32,25 @@ namespace assembler
 
   void Manager::ProcessLabel(std::string name)
   {
+    m_IsContentOp = false;
     m_CurrLabels.push_back(name);
   }
+  void Manager::ProcessSameLineLabel(std::string name)
+  {
+    if(m_IsContentOp == true)
+    {
+      m_Table.AssignValue(name, m_PrevLocation);
+      m_IsContentOp = false;
+    }
+    //not content op in same line, push to section list
+    else
+    {
+      m_CurrLabels.push_back(name);
+    }
+  }  
   void Manager::ProcessGlobal()
   {
+    m_IsContentOp = false;
     for(auto it : m_CurrArgs)
     {
       m_Table.RegisterGlobal(it.first);
@@ -44,6 +59,7 @@ namespace assembler
   }
   void Manager::ProcessExtern()
   {
+    m_IsContentOp = false;
     //linker?
     std::cout<<"Extern sa arg: ";
     for(auto it : m_CurrArgs)
@@ -55,6 +71,7 @@ namespace assembler
   }
   void Manager::ProcessSection(std::string name)
   {
+    m_IsContentOp = false;
     auto section = m_MachineCode.find(name);
     if(section != m_MachineCode.end()) //found section
     {
@@ -104,6 +121,7 @@ namespace assembler
     }
     m_LocationCounter+=literal;
   }
+  //helpers
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
   {
     m_MachineCode[secName][locCounter] = value;
@@ -116,6 +134,8 @@ namespace assembler
       m_Table.AssignValue(label, m_LocationCounter);
     }
     m_CurrLabels.clear();
+    m_IsContentOp = true;
+    m_PrevLocation = m_LocationCounter;
   }
-  //TODO: sekcije, labele, extern, global
+  //TODO: testing, labels especially
 }

@@ -51,8 +51,9 @@ line_compl
   | line T_COMMENT
   | T_COMMENT
   | T_IDENT T_COLON line
+  { ASMManager.ProcessSameLineLabel($1); }
   | T_IDENT T_COLON
-  { std::cout<<$1<<std::endl; }
+  { ASMManager.ProcessLabel($1);}
   ;
 line
   : T_DIR_GLOB sym_list

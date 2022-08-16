@@ -19,10 +19,14 @@ namespace assembler
       std::vector<argInfo> m_CurrArgs;
       std::vector<std::string> m_CurrLabels;
 
+      addressType m_PrevLocation = 0; //for same line label, ali samo kada je uz to direktiva koja sadrzi sadrzaj
+      bool m_IsContentOp = false;
+
     public:
       static Manager& GetInstance();
 
       void ProcessLabel(std::string name);
+      void ProcessSameLineLabel(std::string name);
       void ProcessGlobal();
       void ProcessExtern();
       void ProcessSection(std::string name);
