@@ -70,6 +70,7 @@ namespace assembler
   }
   void Manager::ProcessWord()
   {
+    AssignLabels();
     std::cout<<"Word sa arg: ";
     for(auto it : m_CurrArgs)
     {
@@ -96,6 +97,7 @@ namespace assembler
   }
   void Manager::ProcessSkip(int literal)
   {
+    AssignLabels();
     for(int i = 0; i < literal; i++)
     {
       m_MachineCode[m_CurrSection].push_back(0);
