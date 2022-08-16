@@ -22,16 +22,19 @@ namespace assembler
     private:
       struct Content
       {
-        word value;
+        word value = 0;
         ubyte size;
         SymType type;
-        SymBind bind;
+        SymBind bind = SymBind::LOCAL;
         ubyte ndx;
+        bool isKnown = false;
       };
 
       std::unordered_map<std::string, Content> m_Table;
 
     public:
       word GetSymbolValue(std::string name, addressType locationCounter);
+      void RegisterGlobal(std::string name);
+      void AssignValue(std::string name, word value);
   };
 }

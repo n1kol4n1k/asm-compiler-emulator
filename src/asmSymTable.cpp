@@ -17,4 +17,15 @@ namespace assembler
       return cnt.value;
     }
   }
+
+  void SymTable::RegisterGlobal(std::string name)
+  {
+    m_Table[name].bind = SymBind::GLOBAL;
+  }
+
+  void SymTable::AssignValue(std::string name, word value)
+  {
+    m_Table[name].isKnown = true;
+    m_Table[name].value = value;
+  }
 }

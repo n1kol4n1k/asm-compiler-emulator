@@ -17,6 +17,7 @@ namespace assembler
       //bool -> isSym
       using argInfo = std::pair<std::string, bool>;
       std::vector<argInfo> m_CurrArgs;
+      std::vector<std::string> m_CurrLabels;
 
     public:
       static Manager& GetInstance();
@@ -33,5 +34,6 @@ namespace assembler
 
     private: //helper functions
       void InsertWord(std::string secName, addressType locCounter, word value);
+      void AssignLabels();
   };
 }

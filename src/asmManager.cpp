@@ -32,20 +32,19 @@ namespace assembler
 
   void Manager::ProcessLabel(std::string name)
   {
-    
+    m_CurrLabels.push_back(name);
   }
   void Manager::ProcessGlobal()
   {
-    std::cout<<"Global sa arg: ";
     for(auto it : m_CurrArgs)
     {
-      std::cout<<it.first<<"-"<<it.second<<" ";
+      m_Table.RegisterGlobal(it.first);
     }
-    std::cout<<"\n";
     m_CurrArgs.clear();
   }
   void Manager::ProcessExtern()
   {
+    //linker?
     std::cout<<"Extern sa arg: ";
     for(auto it : m_CurrArgs)
     {
@@ -56,7 +55,18 @@ namespace assembler
   }
   void Manager::ProcessSection(std::string name)
   {
-
+    auto section = m_MachineCode.find(name);
+    if(section != m_MachineCode.end()) //found section
+    {
+      m_LocationCounter = m_MachineCode[name].size();
+    }
+    else
+    {
+      m_MachineCode.insert({name, std::vector<ubyte>()});
+      m_LocationCounter = 0;
+    }
+    m_CurrSection = name;
+    //u projektu se spominju sekcije sa istim imenom, sta onda?
   }
   void Manager::ProcessWord()
   {
@@ -77,7 +87,7 @@ namespace assembler
       }
       else //symbol
       {
-        
+        word symValue = m_Table.GetSymbolValue(it.first, m_LocationCounter);
       }
       m_LocationCounter+=2;
     }
@@ -86,13 +96,24 @@ namespace assembler
   }
   void Manager::ProcessSkip(int literal)
   {
-  
+    for(int i = 0; i < literal; i++)
+    {
+      m_MachineCode[m_CurrSection].push_back(0);
+    }
+    m_LocationCounter+=literal;
   }
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
   {
     m_MachineCode[secName][locCounter] = value;
     m_MachineCode[secName][locCounter] = (value>>8);
   }
-
+  inline void Manager::AssignLabels()
+  {
+    for(std::string label : m_CurrLabels)
+    {
+      m_Table.AssignValue(label, m_LocationCounter);
+    }
+    m_CurrLabels.clear();
+  }
   //TODO: sekcije, labele, extern, global
 }
