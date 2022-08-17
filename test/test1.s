@@ -1,12 +1,12 @@
+#labels testings
 .section asd
 #xD
 dab: 
 kek:
-.end
+.global a
 qwe: 
 .global a,b, c #yo yo
 .word a, 1211, cd
-#labels testing
 monk:
 bonk:
 .word 12
