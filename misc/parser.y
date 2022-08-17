@@ -67,7 +67,7 @@ line
   | T_DIR_SKIP T_NUM
   { ASMManager.ProcessSkip($2); }
   | T_DIR_END
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessEnd(); YYACCEPT; }
   ;
 sym_list
   : T_IDENT

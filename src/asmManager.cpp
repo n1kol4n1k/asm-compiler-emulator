@@ -141,5 +141,9 @@ namespace assembler
     m_IsContentOp = true;
     m_PrevLocation = m_LocationCounter;
   }
-  //TODO: testing, labels especially
+  /*TODO: obracanje unapred.
+  Testirati sekcije, generisanje koda.
+  Tabela simbola, pogledati snimke za ASM
+  Izlazni sadrzaj, bin datoteka?
+  */
 }
