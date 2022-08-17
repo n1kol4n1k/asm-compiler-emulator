@@ -121,6 +121,10 @@ namespace assembler
     }
     m_LocationCounter+=literal;
   }
+  void Manager::ProcessEnd()
+  {
+    m_IsContentOp = false;
+  }
   //helpers
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
   {

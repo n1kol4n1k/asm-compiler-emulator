@@ -65,9 +65,9 @@ line
   | T_DIR_WORD sym_lit_list
   { ASMManager.ProcessWord(); }
   | T_DIR_SKIP T_NUM
-  {std::cout<<"skip def\n";}
+  { ASMManager.ProcessSkip($2); }
   | T_DIR_END
-  {std::cout<<"end def\n";}
+  { ASMManager.ProcessEnd(); }
   ;
 sym_list
   : T_IDENT

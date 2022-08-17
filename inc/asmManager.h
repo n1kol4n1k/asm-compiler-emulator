@@ -32,6 +32,7 @@ namespace assembler
       void ProcessSection(std::string name);
       void ProcessWord();
       void ProcessSkip(int literal);
+      void ProcessEnd();
 
       void RegisterSymArg(std::string arg);
       void RegisterNumArg(int arg);
