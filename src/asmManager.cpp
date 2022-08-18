@@ -47,7 +47,8 @@ namespace assembler
     {
       m_CurrLabels.push_back(name);
     }
-  }  
+  }
+
   void Manager::ProcessGlobal()
   {
     m_IsContentOp = false;
@@ -61,14 +62,9 @@ namespace assembler
   {
     m_IsContentOp = false;
     //linker?
-    std::cout<<"Extern sa arg: ";
-    for(auto it : m_CurrArgs)
-    {
-      std::cout<<it.first<<"-"<<it.second<<" ";
-    }
-    std::cout<<"\n";
-    m_CurrArgs.clear();
+    
   }
+
   void Manager::ProcessSection(std::string name)
   {
     m_IsContentOp = false;
@@ -85,6 +81,7 @@ namespace assembler
     m_CurrSection = name;
     //u projektu se spominju sekcije sa istim imenom, sta onda?
   }
+
   void Manager::ProcessWord()
   {
     AssignLabels();
@@ -105,13 +102,14 @@ namespace assembler
       }
       else //symbol
       {
-        word symValue = m_Table.GetSymbolValue(it.first, m_LocationCounter);
+        word symValue = m_Table.GetSymbolValue(it.first, m_CurrSection, m_LocationCounter);
       }
       m_LocationCounter+=2;
     }
     std::cout<<"\n";
     m_CurrArgs.clear();
   }
+
   void Manager::ProcessSkip(int literal)
   {
     AssignLabels();
@@ -121,11 +119,34 @@ namespace assembler
     }
     m_LocationCounter+=literal;
   }
+
   void Manager::ProcessEnd()
   {
     m_IsContentOp = false;
   }
+  
+  void Manager::FillPrevUnknownValues()
+  {
+    for(auto it : m_Table.GetAdvancingTable())
+    { 
+      std::string symName = it.first;
+      if(m_Table.SymbolExist(symName) == false)
+      {
+        std::cerr<<"Abnormal behavior - symbol: "<<symName<<" exist in AdvancingTable but not in SymbolTable\n";
+        return;
+      }
+      if(m_Table.IsKnown(symName) == false) //but extern.. ?
+      {
+        std::cerr<<"Symbol: "<<symName<<" value was used but not initialized\n";
+        return;
+      }
+      word symValue = m_Table.GetSymbolValue(symName, m_CurrSection, m_LocationCounter);
+      InsertWord(it.second.section, it.second.address, symValue);
+    }
+  }
+
   //helpers
+
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
   {
     m_MachineCode[secName][locCounter] = value;

@@ -2,6 +2,7 @@
 #include "../parser.h"
 #include <string.h>
 #include <string>
+#include "../inc/asmManager.h"
 
 static bool OpenFile(int argc, char* argv[]);
 static std::string outputFileName;
@@ -18,6 +19,8 @@ int main(int argc, char* argv[])
   yydebug = 0;
 
   yyparse();
+  ASMManager.FillPrevUnknownValues();
+  
   return 0;
 }
 

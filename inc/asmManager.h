@@ -37,6 +37,8 @@ namespace assembler
       void RegisterSymArg(std::string arg);
       void RegisterNumArg(int arg);
 
+      void FillPrevUnknownValues();
+
     private: //helper functions
       void InsertWord(std::string secName, addressType locCounter, word value);
       void AssignLabels();

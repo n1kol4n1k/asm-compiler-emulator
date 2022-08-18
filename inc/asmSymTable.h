@@ -31,10 +31,20 @@ namespace assembler
       };
 
       std::unordered_map<std::string, Content> m_Table;
+      
+      struct LocationInfo
+      {
+        std::string section;
+        addressType address;
+      };
+      std::vector<std::pair<std::string, LocationInfo>> m_AdvancingTable;
 
     public:
-      word GetSymbolValue(std::string name, addressType locationCounter);
+      word GetSymbolValue(std::string name, std::string sec, addressType locationCounter);
       void RegisterGlobal(std::string name);
       void AssignValue(std::string name, word value);
+      std::vector<std::pair<std::string, LocationInfo>> GetAdvancingTable() { return m_AdvancingTable; };
+      bool IsKnown(std::string name) { return m_Table[name].isKnown; }
+      bool SymbolExist(std::string name) { return m_Table.find(name) != m_Table.end(); }
   };
 }
