@@ -61,7 +61,7 @@ line
   | T_DIR_EXT sym_list
   { ASMManager.ProcessExtern(); }
   | T_DIR_SEC T_IDENT
-  {std::cout<<"sekcija "<<$2<<"\n";}
+  { ASMManager.ProcessSection($2); }
   | T_DIR_WORD sym_lit_list
   { ASMManager.ProcessWord(); }
   | T_DIR_SKIP T_NUM

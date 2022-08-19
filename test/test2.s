@@ -1,24 +1,12 @@
-#labels testings
-.section asd
-#xD
-dab: 
-kek:
-.global a
-qwe: 
-.global a,b, c #yo yo
-.word a, 1211, cd
-monk:
-bonk:
-pleb: .end
-.word 42
-po:
-pon:
-uto:
-.global a
-sre: .global a
-.global a
-.word 222
-.word 5
-cet: .skip 5
-pet:
-.word 2
+#forward adressing
+.word a, b
+.global b
+.word 10
+b:
+.global b
+.word b
+a: .word 20, 12
+.section hey
+.word b, a, c
+c: .word 122
+.end

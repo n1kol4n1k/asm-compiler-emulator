@@ -85,13 +85,11 @@ namespace assembler
   void Manager::ProcessWord()
   {
     AssignLabels();
-    std::cout<<"Word sa arg: ";
-    for(auto it : m_CurrArgs)
+    for(auto it = m_CurrArgs.rbegin(); it != m_CurrArgs.rend(); it++)
     {
-      std::cout<<it.first<<"-"<<it.second<<" ";
-      if(it.second == false) //literal
+      if(it->second == false) //literal
       {
-        int num = std::stoi(it.first);
+        int num = std::stoi(it->first);
         if(num < WORD_MIN || num > WORD_MAX)
         {
           //print error
@@ -102,7 +100,9 @@ namespace assembler
       }
       else //symbol
       {
-        word symValue = m_Table.GetSymbolValue(it.first, m_CurrSection, m_LocationCounter);
+        word symValue = m_Table.GetSymbolValue(it->first, m_CurrSection, m_LocationCounter);
+        m_MachineCode[m_CurrSection].push_back(symValue);
+        m_MachineCode[m_CurrSection].push_back(symValue>>8);
       }
       m_LocationCounter+=2;
     }
@@ -150,7 +150,7 @@ namespace assembler
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
   {
     m_MachineCode[secName][locCounter] = value;
-    m_MachineCode[secName][locCounter] = (value>>8);
+    m_MachineCode[secName][++locCounter] = (value>>8);
   }
   inline void Manager::AssignLabels()
   {
