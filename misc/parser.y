@@ -114,57 +114,57 @@ line
   | T_DIR_END
   { ASMManager.ProcessEnd(); YYACCEPT; }
   | T_CMD_HALT
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessHalt(); }
   | T_CMD_INT T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessInt($2); }
   | T_CMD_IRET
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessIret(); }
   | T_CMD_CALL operand
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessCall($2); }
   | T_CMD_RET
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessRet(); }
   | T_CMD_JMP operand
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessJmp($2); }
   | T_CMD_JEQ operand
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessJeq($2); }
   | T_CMD_JNE operand
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessJne($2); }
   | T_CMD_JGT operand
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessJgt($2); }
   | T_CMD_PUSH T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessPush($2); }
   | T_CMD_POP T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessPop($2); }
   | T_CMD_XCHG T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessXchg($2, $4); }
   | T_CMD_ADD T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessAdd($2, $4); }
   | T_CMD_SUB T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessSub($2, $4); }
   | T_CMD_MUL T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessMul($2, $4); }
   | T_CMD_DIV T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessDiv($2, $4); }
   | T_CMD_CMP T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessCmp($2, $4); }
   | T_CMD_NOT T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessNot($2); }
   | T_CMD_AND T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessAnd($2, $4); }
   | T_CMD_OR T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessOr($2, $4); }
   | T_CMD_XOR T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessXor($2, $4); }
   | T_CMD_TEST T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessTest($2, $4); }
   | T_CMD_SHL T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessShl($2, $4); }
   | T_CMD_SHR T_REG T_COMMA T_REG
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessShr($2, $4); }
   | T_CMD_LDR T_REG T_COMMA operand
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessLdr($2, $4); }
   | T_CMD_STR T_REG T_COMMA operand
-  { ASMManager.ProcessEnd(); }
+  { ASMManager.ProcessStr($2, $4); }
   ;
 sym_list
   : T_IDENT

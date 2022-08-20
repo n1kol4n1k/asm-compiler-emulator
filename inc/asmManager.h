@@ -1,4 +1,5 @@
 #include "asmSymTable.h"
+#include "../parser.h"
 
 #define ASMManager assembler::Manager::GetInstance()
 #define OP_SYNTAX assembler::OperandSyntax
@@ -46,6 +47,7 @@ namespace assembler
     public:
       static Manager& GetInstance();
 
+      //Assembly directives
       void ProcessLabel(std::string name);
       void ProcessSameLineLabel(std::string name);
       void ProcessGlobal();
@@ -58,6 +60,35 @@ namespace assembler
       void RegisterSymArg(std::string arg);
       void RegisterNumArg(int arg);
 
+      //Assembly commands
+      void ProcessHalt();
+      void ProcessInt(std::string regD);
+      void ProcessIret();
+      void ProcessCall(operandInfo op);
+      void ProcessRet();
+      void ProcessJmp(operandInfo op);
+      void ProcessJeq(operandInfo op);
+      void ProcessJne(operandInfo op);
+      void ProcessJgt(operandInfo op);
+      void ProcessPush(std::string regD);
+      void ProcessPop(std::string regD);
+      void ProcessXchg(std::string regD, std::string regS);
+      void ProcessAdd(std::string regD, std::string regS);
+      void ProcessSub(std::string regD, std::string regS);
+      void ProcessMul(std::string regD, std::string regS);
+      void ProcessDiv(std::string regD, std::string regS);
+      void ProcessCmp(std::string regD, std::string regS);
+      void ProcessNot(std::string regD);
+      void ProcessAnd(std::string regD, std::string regS);
+      void ProcessOr(std::string regD, std::string regS);
+      void ProcessXor(std::string regD, std::string regS);
+      void ProcessTest(std::string regD, std::string regS);
+      void ProcessShl(std::string regD, std::string regS);
+      void ProcessShr(std::string regD, std::string regS);
+      void ProcessLdr(std::string regD, operandInfo op);
+      void ProcessStr(std::string regD, operandInfo op);
+
+      //Cleanup
       void FillPrevUnknownValues();
 
     private: //helper functions

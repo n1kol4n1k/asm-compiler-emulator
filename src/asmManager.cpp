@@ -19,6 +19,8 @@ namespace assembler
     m_CurrSection = "undefined";
   }
 
+  //Assembly directives
+
   void Manager::RegisterSymArg(std::string arg)
   {
     argInfo info = std::make_pair(arg, true);
@@ -145,6 +147,113 @@ namespace assembler
     }
   }
 
+  //Assembly commands
+
+  void Manager::ProcessHalt()
+  {
+
+  }
+  void Manager::ProcessInt(std::string regD)
+  {
+    
+  }
+  void Manager::ProcessIret()
+  {
+    
+  }
+  void Manager::ProcessCall(operandInfo op)
+  {
+    
+  }
+  void Manager::ProcessRet()
+  {
+    
+  }
+  void Manager::ProcessJmp(operandInfo op)
+  {
+    
+  }
+  void Manager::ProcessJeq(operandInfo op)
+  {
+    
+  }
+  void Manager::ProcessJne(operandInfo op)
+  {
+    
+  }
+  void Manager::ProcessJgt(operandInfo op)
+  {
+    
+  }
+  void Manager::ProcessPush(std::string regD)
+  {
+    
+  }
+  void Manager::ProcessPop(std::string regD)
+  {
+    
+  }
+  void Manager::ProcessXchg(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessAdd(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessSub(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessMul(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessDiv(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessCmp(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessNot(std::string regD)
+  {
+    
+  }
+  void Manager::ProcessAnd(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessOr(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessXor(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessTest(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessShl(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessShr(std::string regD, std::string regS)
+  {
+    
+  }
+  void Manager::ProcessLdr(std::string regD, operandInfo op)
+  {
+    
+  }
+  void Manager::ProcessStr(std::string regD, operandInfo op)
+  {
+    
+  }
+
   //helpers
 
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
@@ -162,6 +271,7 @@ namespace assembler
     m_IsContentOp = true;
     m_PrevLocation = m_LocationCounter;
   }
+  
   /*TODO: obracanje unapred.
   Testirati sekcije, generisanje koda.
   Tabela simbola, pogledati snimke za ASM
