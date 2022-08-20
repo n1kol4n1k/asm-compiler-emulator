@@ -1,9 +1,30 @@
 #include "asmSymTable.h"
 
 #define ASMManager assembler::Manager::GetInstance()
+#define OP_SYNTAX assembler::OperandSyntax
 
 namespace assembler
 {
+  enum OperandSyntax
+  {
+    unknown = 0, 
+    noPrefixLiteral = 1, 
+    noPrefixSymbol = 2, 
+    dollarLiteral = 3, 
+    dollarSymbol = 4, 
+    percentSymbol = 5, 
+    noPrefixReg = 6, 
+    bracketReg = 7, 
+    bracketRegLiteral = 8, 
+    bracketRegSymbol = 9, 
+    asteriskLiteral = 10, 
+    asteriskSymbol = 11, 
+    asteriskReg = 12, 
+    asteriskBracketReg = 13, 
+    asteriskBracketRegLiteral = 14, 
+    asteriskBracketRegSymbol = 15
+  };
+
   class Manager
   {
     private:

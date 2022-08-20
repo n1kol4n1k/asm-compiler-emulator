@@ -14,7 +14,8 @@ namespace assembler
   enum SymBind
   {
     GLOBAL, 
-    LOCAL
+    LOCAL, 
+    EXTERN
   };
 
   class SymTable 
@@ -23,10 +24,9 @@ namespace assembler
       struct Content
       {
         word value = 0;
-        ubyte size;
-        SymType type;
+        SymType type = SymType::NOTYP;
         SymBind bind = SymBind::LOCAL;
-        ubyte ndx;
+        std::string section;
         bool isKnown = false;
       };
 
@@ -42,7 +42,8 @@ namespace assembler
     public:
       word GetSymbolValue(std::string name, std::string sec, addressType locationCounter);
       void RegisterGlobal(std::string name);
-      void AssignValue(std::string name, word value);
+      void RegisterExtern(std::string name);
+      void AssignValue(std::string name, word value, std::string section);
       std::vector<std::pair<std::string, LocationInfo>> GetAdvancingTable() { return m_AdvancingTable; };
       bool IsKnown(std::string name) { return m_Table[name].isKnown; }
       bool SymbolExist(std::string name) { return m_Table.find(name) != m_Table.end(); }

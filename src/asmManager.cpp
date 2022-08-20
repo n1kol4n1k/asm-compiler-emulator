@@ -39,7 +39,7 @@ namespace assembler
   {
     if(m_IsContentOp == true)
     {
-      m_Table.AssignValue(name, m_PrevLocation);
+      m_Table.AssignValue(name, m_PrevLocation, m_CurrSection);
       m_IsContentOp = false;
     }
     //not content op in same line, push to section list
@@ -156,7 +156,7 @@ namespace assembler
   {
     for(std::string label : m_CurrLabels)
     {
-      m_Table.AssignValue(label, m_LocationCounter);
+      m_Table.AssignValue(label, m_LocationCounter, m_CurrSection);
     }
     m_CurrLabels.clear();
     m_IsContentOp = true;

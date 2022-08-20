@@ -34,9 +34,16 @@ namespace assembler
     m_Table[name].bind = SymBind::GLOBAL;
   }
 
-  void SymTable::AssignValue(std::string name, word value)
+  void SymTable::RegisterExtern(std::string name)
+  {
+    //errors? What if we try to assign value to extern symbol
+    m_Table[name].bind = SymBind::EXTERN;
+  }
+
+  void SymTable::AssignValue(std::string name, word value, std::string section)
   {
     m_Table[name].isKnown = true;
     m_Table[name].value = value;
+    m_Table[name].section = section;
   }
 }
