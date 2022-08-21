@@ -184,38 +184,34 @@ sym_lit_list
   ;
 operand
   : T_NUM
-  { $$.literal = $1; $$.type = OP_SYNTAX::noPrefixLiteral; }
+  { $$.symbol = nullptr; $$.literal = $1; $$.reg = nullptr; $$.type = OP_SYNTAX::noPrefixLiteral; }
   | T_IDENT
-  { $$.symbol = $1; $$.type = OP_SYNTAX::noPrefixSymbol; }
+  { $$.symbol = $1; $$.literal = 0; $$.reg = nullptr; $$.type = OP_SYNTAX::noPrefixSymbol; }
   | T_DOLLAR T_NUM
-  { $$.literal = $2; $$.type = OP_SYNTAX::dollarLiteral; }
+  { $$.symbol = nullptr; $$.literal = $2; $$.reg = nullptr; $$.type = OP_SYNTAX::dollarLiteral; }
   | T_DOLLAR T_IDENT
-  { $$.symbol = $2; $$.type = OP_SYNTAX::dollarSymbol; }
+  { $$.symbol = $2; $$.literal = 0; $$.reg = nullptr; $$.type = OP_SYNTAX::dollarSymbol; }
   | T_PERCENT T_IDENT
-  { $$.symbol = $2; $$.type = OP_SYNTAX::percentSymbol; }
+  { $$.symbol = $2; $$.literal = 0; $$.reg = nullptr; $$.type = OP_SYNTAX::percentSymbol; }
   | T_REG
-  { $$.reg = $1; $$.type = OP_SYNTAX::noPrefixReg; }
+  { $$.symbol = nullptr; $$.literal = 0; $$.reg = $1; $$.type = OP_SYNTAX::noPrefixReg; }
   | T_SQ_BRACKET_L T_REG T_SQ_BRACKET_R
-  { $$.reg = $2; $$.type = OP_SYNTAX::bracketReg; }
+  { $$.symbol = nullptr; $$.literal = 0; $$.reg = $2; $$.type = OP_SYNTAX::bracketReg; }
   | T_SQ_BRACKET_L T_REG T_PLUS T_NUM T_SQ_BRACKET_R
-  { $$.reg = $2; $$.literal = $4; $$.type = OP_SYNTAX::bracketRegLiteral; }
+  { $$.symbol = nullptr; $$.literal = $4; $$.reg = $2; $$.type = OP_SYNTAX::bracketRegLiteral; }
   | T_SQ_BRACKET_L T_REG T_PLUS T_IDENT T_SQ_BRACKET_R
-  { $$.reg = $2; $$.symbol = $4; $$.type = OP_SYNTAX::bracketRegSymbol; }
+  { $$.symbol = $4; $$.literal = 0; $$.reg = $2; $$.type = OP_SYNTAX::bracketRegSymbol; }
   | T_ASTERISK T_NUM
-  { $$.literal = $2; $$.type = OP_SYNTAX::asteriskLiteral; }
+  { $$.symbol = nullptr; $$.literal = $2; $$.reg = nullptr; $$.type = OP_SYNTAX::asteriskLiteral; }
   | T_ASTERISK T_IDENT
-  { $$.symbol = $2; $$.type = OP_SYNTAX::asteriskSymbol; }
+  { $$.symbol = $2; $$.literal = 0; $$.reg = nullptr; $$.type = OP_SYNTAX::asteriskSymbol; }
   | T_ASTERISK T_REG
-  { $$.reg = $2; $$.type = OP_SYNTAX::asteriskReg; }
+  { $$.symbol = nullptr; $$.literal = 0; $$.reg = $2; $$.type = OP_SYNTAX::asteriskReg; }
   | T_ASTERISK T_SQ_BRACKET_L T_REG T_SQ_BRACKET_R
-  { $$.reg = $3; $$.type = OP_SYNTAX::asteriskBracketReg; }
+  { $$.symbol = nullptr; $$.literal = 0; $$.reg = $3; $$.type = OP_SYNTAX::asteriskBracketReg; }
   | T_ASTERISK T_SQ_BRACKET_L T_REG T_PLUS T_NUM T_SQ_BRACKET_R
-  { $$.reg = $3; $$.literal = $5; $$.type = OP_SYNTAX::asteriskBracketRegLiteral; }
+  { $$.symbol = nullptr; $$.literal = $5; $$.reg = $3; $$.type = OP_SYNTAX::asteriskBracketRegLiteral; }
   | T_ASTERISK T_SQ_BRACKET_L T_REG T_PLUS T_IDENT T_SQ_BRACKET_R
-  { $$.reg = $3; $$.symbol = $5; $$.type = OP_SYNTAX::asteriskBracketRegSymbol; }
+  { $$.symbol = $5; $$.literal = 0; $$.reg = $3;  $$.type = OP_SYNTAX::asteriskBracketRegSymbol; }
   ;
 %%
-    char* symbol;
-    int literal;
-    char* reg;
-    int type; 

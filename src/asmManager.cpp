@@ -108,7 +108,6 @@ namespace assembler
       }
       m_LocationCounter+=2;
     }
-    std::cout<<"\n";
     m_CurrArgs.clear();
   }
 
@@ -151,27 +150,41 @@ namespace assembler
 
   void Manager::ProcessHalt()
   {
-
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_halt);
+    m_LocationCounter++;
   }
   void Manager::ProcessInt(std::string regD)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_int);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), 0b1111);
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessIret()
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_iret);
+    m_LocationCounter++;
   }
   void Manager::ProcessCall(operandInfo op)
   {
-    
+    std::string symbol;
+    std::string reg;
+    UnpackStrings(op, symbol, reg);
+    std::cout<<"Call - Type: "<<op.type<<" Symbol: "<<symbol<<" Reg: "<<reg<<" Literal: "<<op.literal<<"\n";
   }
   void Manager::ProcessRet()
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_ret);
+    m_LocationCounter++;
   }
   void Manager::ProcessJmp(operandInfo op)
   {
-    
+    AssignLabels();
+    ProcessJumpInstruction(InstructionTypes::c_jmp, op);
   }
   void Manager::ProcessJeq(operandInfo op)
   {
@@ -187,63 +200,115 @@ namespace assembler
   }
   void Manager::ProcessPush(std::string regD)
   {
-    
+    //to be done with combination of other instructions
   }
   void Manager::ProcessPop(std::string regD)
   {
-    
+    //to be done with combination of other instructions
   }
   void Manager::ProcessXchg(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_xchg);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessAdd(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_add);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessSub(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_sub);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessMul(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_mul);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessDiv(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_div);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessCmp(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_cmp);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessNot(std::string regD)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_not);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), 0b1111);
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessAnd(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_and);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessOr(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_or);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessXor(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_xor);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessTest(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_test);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessShl(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_shl);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessShr(std::string regD, std::string regS)
   {
-    
+    AssignLabels();
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_shr);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    m_LocationCounter += 2;
   }
   void Manager::ProcessLdr(std::string regD, operandInfo op)
   {
@@ -261,6 +326,7 @@ namespace assembler
     m_MachineCode[secName][locCounter] = value;
     m_MachineCode[secName][++locCounter] = (value>>8);
   }
+
   inline void Manager::AssignLabels()
   {
     for(std::string label : m_CurrLabels)
@@ -270,6 +336,220 @@ namespace assembler
     m_CurrLabels.clear();
     m_IsContentOp = true;
     m_PrevLocation = m_LocationCounter;
+  }
+
+  void Manager::UnpackStrings(operandInfo& op, std::string& symbol, std::string& reg)
+  {
+    if(op.symbol != nullptr)
+    {
+      symbol = op.symbol;
+    }
+    else
+    {
+      symbol = "";
+    }
+    if(op.reg != nullptr)
+    {
+      reg = op.reg;
+    }
+    else
+    {
+      reg = "";
+    }
+  }
+
+  ubyte Manager::RegNameToIndex(std::string reg)
+  {
+    if(reg == "r0")
+    {
+      return 0b0000;
+    }
+    else if(reg == "r1")
+    {
+      return 0b0001;
+    }
+    else if(reg == "r2")
+    {
+      return 0b0010;
+    }
+    else if(reg == "r3")
+    {
+      return 0b0011;
+    }
+    else if(reg == "r4")
+    {
+      return 0b0100;
+    }
+    else if(reg == "r5")
+    {
+      return 0b0101;
+    }
+    else if(reg == "r6")
+    {
+      return 0b0110;
+    }
+    else if(reg == "r7")
+    {
+      return 0b0111;
+    }
+    else if(reg == "psw")
+    {
+      return 0b1000;
+    }
+    else 
+    {
+      std::cerr<<"Greska! Registar: "<<reg<<" ne postoji u sistemu!\n";
+      return 0b1111;
+    }
+  }
+
+  ubyte Manager::CreateByte(ubyte up_4b, ubyte low_4b)
+  {
+    ubyte ret = low_4b;
+    ret |= up_4b << 4;
+    return ret;
+  }
+
+  void Manager::ProcessJumpInstruction(InstructionTypes jumpType, operandInfo op)
+  {
+    m_MachineCode[m_CurrSection].push_back(jumpType);
+    m_LocationCounter++;
+
+    ubyte regsDescr;
+    ubyte addrMode;
+    if(op.type == OperandSyntax::noPrefixLiteral)
+    {
+      regsDescr = CreateByte(0b1111, 0b1111);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_imm);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+
+      int num = op.literal;
+      if(num < WORD_MIN || num > WORD_MAX)
+      {
+        //print error
+        return;
+      }
+      m_MachineCode[m_CurrSection].push_back(num>>8);
+      m_MachineCode[m_CurrSection].push_back(num);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::noPrefixSymbol)
+    {
+      //linker ce srediti ovo ako bude razmestanja
+      regsDescr = CreateByte(0b1111, 0b1111);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_imm);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+      //zeroes? Because linker will fix regardless
+      word symValue = m_Table.GetSymbolValue(op.symbol, m_CurrSection, m_LocationCounter);
+
+      m_MachineCode[m_CurrSection].push_back(symValue>>8);
+      m_MachineCode[m_CurrSection].push_back(symValue);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::percentSymbol) // PC rel
+    {
+      //poslednje vezbe
+      regsDescr = CreateByte(0b1111, RegNameToIndex("r7")); //PC = R7
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_regdir_addition);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+      //linker will fix this with PC rel
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_LocationCounter += 2;
+      //relocation table?
+    }
+    else if(op.type == OperandSyntax::asteriskLiteral)
+    {
+      regsDescr = CreateByte(0b1111, 0b1111);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_mem);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+
+      int num = op.literal;
+      if(num < WORD_MIN || num > WORD_MAX)
+      {
+        //print error
+        return;
+      }
+      m_MachineCode[m_CurrSection].push_back(num>>8);
+      m_MachineCode[m_CurrSection].push_back(num);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::asteriskSymbol)
+    {
+      //linker ce srediti ovo ako bude razmestanja
+      regsDescr = CreateByte(0b1111, 0b1111);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_mem);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+      //zeroes? Because linker will fix regardless
+      word symValue = m_Table.GetSymbolValue(op.symbol, m_CurrSection, m_LocationCounter);
+
+      m_MachineCode[m_CurrSection].push_back(symValue>>8);
+      m_MachineCode[m_CurrSection].push_back(symValue);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::asteriskReg)
+    {
+      regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_regdir);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::asteriskBracketReg)
+    {
+      regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::asteriskBracketRegLiteral)
+    {
+      regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind_addition);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+
+      int num = op.literal;
+      if(num < WORD_MIN || num > WORD_MAX)
+      {
+        //print error
+        return;
+      }
+      m_MachineCode[m_CurrSection].push_back(num>>8);
+      m_MachineCode[m_CurrSection].push_back(num);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::asteriskBracketRegSymbol)
+    {
+      regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind_addition);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_LocationCounter += 2;
+
+      //zeroes? Because linker will fix regardless
+      word symValue = m_Table.GetSymbolValue(op.symbol, m_CurrSection, m_LocationCounter);
+
+      m_MachineCode[m_CurrSection].push_back(symValue>>8);
+      m_MachineCode[m_CurrSection].push_back(symValue);
+      m_LocationCounter += 2;
+    }
+    else
+    {
+      std::cerr<<"Error: jump instructions don't support chosen operand syntax\n";
+    }
   }
   
   /*TODO: obracanje unapred.

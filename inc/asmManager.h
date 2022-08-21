@@ -1,5 +1,6 @@
 #include "asmSymTable.h"
 #include "../parser.h"
+#include "codeConstants.h"
 
 #define ASMManager assembler::Manager::GetInstance()
 #define OP_SYNTAX assembler::OperandSyntax
@@ -94,5 +95,9 @@ namespace assembler
     private: //helper functions
       void InsertWord(std::string secName, addressType locCounter, word value);
       void AssignLabels();
+      void UnpackStrings(operandInfo& op, std::string& symbol, std::string& reg);
+      ubyte RegNameToIndex(std::string reg);
+      ubyte CreateByte(ubyte up_4b, ubyte low_4b);
+      void ProcessJumpInstruction(InstructionTypes jumpType, operandInfo op);
   };
 }
