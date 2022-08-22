@@ -1,4 +1,5 @@
 #include "../inc/asmSymTable.h"
+#include <iostream>
 
 namespace assembler
 {
@@ -36,14 +37,68 @@ namespace assembler
 
   void SymTable::RegisterExtern(std::string name)
   {
-    //errors? What if we try to assign value to extern symbol
+    if(m_Table[name].isKnown == true)
+    {
+      std::cerr<<"Error: tried to declare as extern symbol that is assigned in this module\n";
+      return;
+    }
     m_Table[name].bind = SymBind::EXTERN;
   }
 
-  void SymTable::AssignValue(std::string name, word value, std::string section)
+  void SymTable::AssignValue(std::string name, word value, std::string section, bool isSection)
   {
+    if(m_Table[name].bind == SymBind::EXTERN)
+    {
+      std::cerr<<"Error: tried to assign value to extern symbol\n";
+      return;
+    }
+    if(isSection == true && m_Table[name].bind == SymBind::GLOBAL)
+    {
+      std::cerr<<"Error: tried to create a section to global symbol\n";
+      return;
+    }
+    if(isSection == true)
+    {
+      m_Table[name].type = SymType::SCTN;
+    }
+    else
+    {
+      m_Table[name].type = SymType::NOTYP;
+    }
     m_Table[name].isKnown = true;
     m_Table[name].value = value;
     m_Table[name].section = section;
   }
+
+  void SymTable::InsertIfNotExist(std::string name)
+  {
+    Content cnt;
+    m_Table.insert({name, cnt});
+  }
+
+  bool SymTable::IsUndefined()
+  {
+    for(auto it : m_Table)
+    {
+      if(it.second.bind != SymBind::GLOBAL && it.second.isKnown == false)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  std::vector<std::string> SymTable::GetSections()
+  {
+    std::vector<std::string> ret;
+    for(auto it : m_Table)
+    {
+      if(it.second.type == SymType::SCTN)
+      {
+        ret.push_back(it.first);
+      }
+    }
+    return ret;
+  }
+
 }

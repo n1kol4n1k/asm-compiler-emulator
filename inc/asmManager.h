@@ -1,4 +1,5 @@
 #include "asmSymTable.h"
+#include "asmRelocTable.h"
 #include "../parser.h"
 #include "codeConstants.h"
 
@@ -33,7 +34,7 @@ namespace assembler
       Manager();
       static Manager* inst;
 
-      SymTable m_Table;
+      SymTable m_SymbolTable;
       addressType m_LocationCounter = 0;
       std::unordered_map<std::string, std::vector<ubyte>> m_MachineCode; 
       std::string m_CurrSection;
@@ -44,6 +45,8 @@ namespace assembler
 
       addressType m_PrevLocation = 0; //for same line label, ali samo kada je uz to direktiva koja sadrzi sadrzaj
       bool m_IsContentOp = false;
+
+      RelocationTable m_RelocationTable; 
 
     public:
       static Manager& GetInstance();
@@ -91,6 +94,8 @@ namespace assembler
 
       //Cleanup
       void FillPrevUnknownValues();
+      void UndefinedCheck();
+      void PatchRelocationTable();
 
     private: //helper functions
       void InsertWord(std::string secName, addressType locCounter, word value);

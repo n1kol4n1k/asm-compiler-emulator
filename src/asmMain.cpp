@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
 
   yyparse();
   ASMManager.FillPrevUnknownValues();
+  ASMManager.UndefinedCheck();
+  ASMManager.PatchRelocationTable();
   
   return 0;
 }

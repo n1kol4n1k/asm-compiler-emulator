@@ -1,17 +1,18 @@
 #Operand syntax testing
-call -32
-call usd
-call $12
-call $kek
-call %monk
-call r5
-call [r6]
-call [r7 + 55]
-call [r1 + sm]
-call *87
-call *pol
-call *r4
-call *[r3]
-call *[r2 + 123]
-call *[psw + kee]
+.global a, c
+.extern b
+.section text
+  jmp a
+  jmp e
+  jmp b
+  jmp d
+d: .word d
+.section data
+  .skip 8
+e: .word e
+  .word c
+  .word bss
+a: .word b
+.section bss
+c: .skip 8
 .end

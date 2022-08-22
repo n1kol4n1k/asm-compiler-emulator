@@ -41,10 +41,10 @@ namespace assembler
   {
     if(m_IsContentOp == true)
     {
-      m_Table.AssignValue(name, m_PrevLocation, m_CurrSection);
+      m_SymbolTable.AssignValue(name, m_PrevLocation, m_CurrSection);
       m_IsContentOp = false;
     }
-    //not content op in same line, push to section list
+    //not content op in same line, push to labels list
     else
     {
       m_CurrLabels.push_back(name);
@@ -56,15 +56,18 @@ namespace assembler
     m_IsContentOp = false;
     for(auto it : m_CurrArgs)
     {
-      m_Table.RegisterGlobal(it.first);
+      m_SymbolTable.RegisterGlobal(it.first);
     }
     m_CurrArgs.clear();
   }
   void Manager::ProcessExtern()
   {
     m_IsContentOp = false;
-    //linker?
-    
+    for(auto it : m_CurrArgs)
+    {
+      m_SymbolTable.RegisterExtern(it.first);
+    }
+    m_CurrArgs.clear();
   }
 
   void Manager::ProcessSection(std::string name)
@@ -77,6 +80,7 @@ namespace assembler
     }
     else
     {
+      m_SymbolTable.AssignValue(name, 0, name, true);
       m_MachineCode.insert({name, std::vector<ubyte>()});
       m_LocationCounter = 0;
     }
@@ -94,17 +98,19 @@ namespace assembler
         int num = std::stoi(it->first);
         if(num < WORD_MIN || num > WORD_MAX)
         {
-          //print error
+          std::cerr<<"Error: number out of signed 16b int range\n";
           return;
         }
         m_MachineCode[m_CurrSection].push_back(num);
         m_MachineCode[m_CurrSection].push_back(num>>8);
       }
-      else //symbol
+      else //symbol, wil be patched by linker
       {
-        word symValue = m_Table.GetSymbolValue(it->first, m_CurrSection, m_LocationCounter);
-        m_MachineCode[m_CurrSection].push_back(symValue);
-        m_MachineCode[m_CurrSection].push_back(symValue>>8);
+        m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_word, it->first, 0);
+        //at the end we need to fix rel table if sym is local
+        m_SymbolTable.InsertIfNotExist(it->first);
+        m_MachineCode[m_CurrSection].push_back(0);
+        m_MachineCode[m_CurrSection].push_back(0);
       }
       m_LocationCounter+=2;
     }
@@ -126,26 +132,6 @@ namespace assembler
     m_IsContentOp = false;
   }
   
-  void Manager::FillPrevUnknownValues()
-  {
-    for(auto it : m_Table.GetAdvancingTable())
-    { 
-      std::string symName = it.first;
-      if(m_Table.SymbolExist(symName) == false)
-      {
-        std::cerr<<"Abnormal behavior - symbol: "<<symName<<" exist in AdvancingTable but not in SymbolTable\n";
-        return;
-      }
-      if(m_Table.IsKnown(symName) == false) //but extern.. ?
-      {
-        std::cerr<<"Symbol: "<<symName<<" value was used but not initialized\n";
-        return;
-      }
-      word symValue = m_Table.GetSymbolValue(symName, m_CurrSection, m_LocationCounter);
-      InsertWord(it.second.section, it.second.address, symValue);
-    }
-  }
-
   //Assembly commands
 
   void Manager::ProcessHalt()
@@ -188,15 +174,18 @@ namespace assembler
   }
   void Manager::ProcessJeq(operandInfo op)
   {
-    
+    AssignLabels();
+    ProcessJumpInstruction(InstructionTypes::c_jeq, op);
   }
   void Manager::ProcessJne(operandInfo op)
   {
-    
+    AssignLabels();
+    ProcessJumpInstruction(InstructionTypes::c_jne, op);
   }
   void Manager::ProcessJgt(operandInfo op)
   {
-    
+    AssignLabels();
+    ProcessJumpInstruction(InstructionTypes::c_jgt, op);
   }
   void Manager::ProcessPush(std::string regD)
   {
@@ -319,6 +308,53 @@ namespace assembler
     
   }
 
+  //Cleanup
+
+  void Manager::FillPrevUnknownValues()
+  {
+    for(auto it : m_SymbolTable.GetAdvancingTable())
+    { 
+      std::string symName = it.first;
+      if(m_SymbolTable.SymbolExist(symName) == false)
+      {
+        std::cerr<<"Abnormal behavior - symbol: "<<symName<<" exist in AdvancingTable but not in SymbolTable\n";
+        return;
+      }
+      if(m_SymbolTable.IsKnown(symName) == false) //but extern.. ?
+      {
+        std::cerr<<"Symbol: "<<symName<<" value was used but not initialized\n";
+        return;
+      }
+      word symValue = m_SymbolTable.GetSymbolValue(symName, m_CurrSection, m_LocationCounter);
+      InsertWord(it.second.section, it.second.address, symValue);
+    }
+  }
+
+  void Manager::UndefinedCheck()
+  {
+    if(m_SymbolTable.IsUndefined())
+    {
+      std::cerr<<"Error: there are undefined non-extern symbols";
+    }
+  }
+
+  void Manager::PatchRelocationTable()
+  {
+    for(std::string it : m_SymbolTable.GetSections())
+    {
+      for(auto& it : m_RelocationTable.GetRelocTable(it))
+      {
+        auto info = m_SymbolTable.GetSymbolInfo(it.symbol);
+        if(info.isKnown == false)
+        {
+          std::cerr<<"Error: patching rel table failed, undefined symbol\n";
+          return;
+        }
+        it.addent += info.value;
+      }
+    }
+  }
+
   //helpers
 
   inline void Manager::InsertWord(std::string secName, addressType locCounter, word value)
@@ -331,7 +367,7 @@ namespace assembler
   {
     for(std::string label : m_CurrLabels)
     {
-      m_Table.AssignValue(label, m_LocationCounter, m_CurrSection);
+      m_SymbolTable.AssignValue(label, m_LocationCounter, m_CurrSection);
     }
     m_CurrLabels.clear();
     m_IsContentOp = true;
@@ -422,13 +458,13 @@ namespace assembler
       regsDescr = CreateByte(0b1111, 0b1111);
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_imm);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
 
       int num = op.literal;
       if(num < WORD_MIN || num > WORD_MAX)
       {
-        //print error
+        std::cerr<<"Error: number out of signed 16b int range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -441,13 +477,14 @@ namespace assembler
       regsDescr = CreateByte(0b1111, 0b1111);
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_imm);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
-      //zeroes? Because linker will fix regardless
-      word symValue = m_Table.GetSymbolValue(op.symbol, m_CurrSection, m_LocationCounter);
-
-      m_MachineCode[m_CurrSection].push_back(symValue>>8);
-      m_MachineCode[m_CurrSection].push_back(symValue);
+      
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_word, op.symbol, 0);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);  
       m_LocationCounter += 2;
     }
     else if(op.type == OperandSyntax::percentSymbol) // PC rel
@@ -456,9 +493,12 @@ namespace assembler
       regsDescr = CreateByte(0b1111, RegNameToIndex("r7")); //PC = R7
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_regdir_addition);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
-      //linker will fix this with PC rel
+      
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_pc, op.symbol, -2);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
       m_MachineCode[m_CurrSection].push_back(0);
       m_MachineCode[m_CurrSection].push_back(0);
       m_LocationCounter += 2;
@@ -469,13 +509,13 @@ namespace assembler
       regsDescr = CreateByte(0b1111, 0b1111);
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_mem);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
 
       int num = op.literal;
       if(num < WORD_MIN || num > WORD_MAX)
       {
-        //print error
+        std::cerr<<"Error: number out of signed 16b int range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -488,13 +528,14 @@ namespace assembler
       regsDescr = CreateByte(0b1111, 0b1111);
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_mem);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
-      //zeroes? Because linker will fix regardless
-      word symValue = m_Table.GetSymbolValue(op.symbol, m_CurrSection, m_LocationCounter);
-
-      m_MachineCode[m_CurrSection].push_back(symValue>>8);
-      m_MachineCode[m_CurrSection].push_back(symValue);
+      
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_word, op.symbol, 0);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);
       m_LocationCounter += 2;
     }
     else if(op.type == OperandSyntax::asteriskReg)
@@ -502,7 +543,7 @@ namespace assembler
       regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_regdir);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
     }
     else if(op.type == OperandSyntax::asteriskBracketReg)
@@ -510,7 +551,7 @@ namespace assembler
       regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
     }
     else if(op.type == OperandSyntax::asteriskBracketRegLiteral)
@@ -518,13 +559,13 @@ namespace assembler
       regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind_addition);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
 
       int num = op.literal;
       if(num < WORD_MIN || num > WORD_MAX)
       {
-        //print error
+        std::cerr<<"Error: number out of signed 16b int range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -536,14 +577,14 @@ namespace assembler
       regsDescr = CreateByte(0b1111, RegNameToIndex(op.reg));
       m_MachineCode[m_CurrSection].push_back(regsDescr);
       addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind_addition);
-      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
 
-      //zeroes? Because linker will fix regardless
-      word symValue = m_Table.GetSymbolValue(op.symbol, m_CurrSection, m_LocationCounter);
-
-      m_MachineCode[m_CurrSection].push_back(symValue>>8);
-      m_MachineCode[m_CurrSection].push_back(symValue);
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_word, op.symbol, 0);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);
       m_LocationCounter += 2;
     }
     else
