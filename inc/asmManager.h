@@ -104,5 +104,6 @@ namespace assembler
       ubyte RegNameToIndex(std::string reg);
       ubyte CreateByte(ubyte up_4b, ubyte low_4b);
       void ProcessJumpInstruction(InstructionTypes jumpType, operandInfo op);
+      void ProcessDataInstruction(InstructionTypes instrType, std::string regD, operandInfo op);
   };
 }

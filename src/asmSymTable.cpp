@@ -80,7 +80,7 @@ namespace assembler
   {
     for(auto it : m_Table)
     {
-      if(it.second.bind != SymBind::GLOBAL && it.second.isKnown == false)
+      if(it.second.bind != SymBind::EXTERN && it.second.isKnown == false)
       {
         return true;
       }

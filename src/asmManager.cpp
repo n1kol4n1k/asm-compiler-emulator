@@ -156,10 +156,8 @@ namespace assembler
   }
   void Manager::ProcessCall(operandInfo op)
   {
-    std::string symbol;
-    std::string reg;
-    UnpackStrings(op, symbol, reg);
-    std::cout<<"Call - Type: "<<op.type<<" Symbol: "<<symbol<<" Reg: "<<reg<<" Literal: "<<op.literal<<"\n";
+    AssignLabels();
+    ProcessJumpInstruction(InstructionTypes::c_call, op);
   }
   void Manager::ProcessRet()
   {
@@ -189,11 +187,25 @@ namespace assembler
   }
   void Manager::ProcessPush(std::string regD)
   {
-    //to be done with combination of other instructions
+    AssignLabels();
+    //implemented by str instruction
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_str);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex("r6"));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    ubyte addrMode = CreateByte(RegIndUpdate::c_sub2_before, AdressingMethod::c_regind);
+    m_MachineCode[m_CurrSection].push_back(addrMode);
+    m_LocationCounter += 3;
   }
   void Manager::ProcessPop(std::string regD)
   {
-    //to be done with combination of other instructions
+    AssignLabels();
+    //implemented by ldr instruction
+    m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_str);
+    ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex("r6"));
+    m_MachineCode[m_CurrSection].push_back(regsDescr);
+    ubyte addrMode = CreateByte(RegIndUpdate::c_add2_after, AdressingMethod::c_regind);
+    m_MachineCode[m_CurrSection].push_back(addrMode);
+    m_LocationCounter += 3;
   }
   void Manager::ProcessXchg(std::string regD, std::string regS)
   {
@@ -298,14 +310,17 @@ namespace assembler
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
     m_MachineCode[m_CurrSection].push_back(regsDescr);
     m_LocationCounter += 2;
+    //TODO: create helper functions to avoid this copy paste junk
   }
   void Manager::ProcessLdr(std::string regD, operandInfo op)
   {
-    
+    AssignLabels();
+    ProcessDataInstruction(InstructionTypes::c_ldr, regD, op);
   }
   void Manager::ProcessStr(std::string regD, operandInfo op)
   {
-    
+    AssignLabels();
+    ProcessDataInstruction(InstructionTypes::c_ldr, regD, op);
   }
 
   //Cleanup
@@ -334,7 +349,7 @@ namespace assembler
   {
     if(m_SymbolTable.IsUndefined())
     {
-      std::cerr<<"Error: there are undefined non-extern symbols";
+      std::cerr<<"Error: there are undefined non-extern symbols\n";
     }
   }
 
@@ -345,12 +360,18 @@ namespace assembler
       for(auto& it : m_RelocationTable.GetRelocTable(it))
       {
         auto info = m_SymbolTable.GetSymbolInfo(it.symbol);
-        if(info.isKnown == false)
+        if(info.bind != SymBind::EXTERN && info.isKnown == false)
         {
           std::cerr<<"Error: patching rel table failed, undefined symbol\n";
           return;
         }
-        it.addent += info.value;
+        //adjust info for local symbols
+        if(info.bind == SymBind::LOCAL)
+        {
+          //linker cannot access locals symbols, we use their section and offset to get their value
+          it.symbol = info.section;
+          it.addent += info.value;
+        }
       }
     }
   }
@@ -502,7 +523,6 @@ namespace assembler
       m_MachineCode[m_CurrSection].push_back(0);
       m_MachineCode[m_CurrSection].push_back(0);
       m_LocationCounter += 2;
-      //relocation table?
     }
     else if(op.type == OperandSyntax::asteriskLiteral)
     {
@@ -592,10 +612,149 @@ namespace assembler
       std::cerr<<"Error: jump instructions don't support chosen operand syntax\n";
     }
   }
-  
-  /*TODO: obracanje unapred.
-  Testirati sekcije, generisanje koda.
-  Tabela simbola, pogledati snimke za ASM
-  Izlazni sadrzaj, bin datoteka?
-  */
+
+  void Manager::ProcessDataInstruction(InstructionTypes instrType, std::string regD, operandInfo op)
+  {
+    m_MachineCode[m_CurrSection].push_back(instrType);
+    m_LocationCounter++;
+
+    ubyte regsDescr;
+    ubyte addrMode;
+    ubyte dstIndex = RegNameToIndex(regD);
+    if(op.type == OperandSyntax::dollarLiteral)
+    {
+      regsDescr = CreateByte(dstIndex, 0b1111);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_imm);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+
+      int num = op.literal;
+      if(num < WORD_MIN || num > WORD_MAX)
+      {
+        std::cerr<<"Error: number out of signed 16b int range\n";
+        return;
+      }
+      m_MachineCode[m_CurrSection].push_back(num>>8);
+      m_MachineCode[m_CurrSection].push_back(num);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::dollarSymbol)
+    {
+      //linker ce srediti ovo ako bude razmestanja
+      regsDescr = CreateByte(dstIndex, 0b1111);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_imm);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+      
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_word, op.symbol, 0);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);  
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::noPrefixLiteral)
+    {
+      regsDescr = CreateByte(dstIndex, 0b1111); //not used
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_mem);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+      
+      int num = op.literal;
+      if(num < WORD_MIN || num > WORD_MAX)
+      {
+        std::cerr<<"Error: number out of signed 16b int range\n";
+        return;
+      }
+      m_MachineCode[m_CurrSection].push_back(num>>8);
+      m_MachineCode[m_CurrSection].push_back(num);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::noPrefixSymbol)
+    {
+      regsDescr = CreateByte(dstIndex, 0b1111);
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_mem);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+      
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_word, op.symbol, 0);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);  
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::percentSymbol)
+    {
+      regsDescr = CreateByte(dstIndex, RegNameToIndex("r7")); //PC = R7
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_regind_addition);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+      
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_pc, op.symbol, -2);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::noPrefixReg)
+    {
+      regsDescr = CreateByte(dstIndex, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_not_used, AdressingMethod::c_regdir);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::bracketReg)
+    {
+      regsDescr = CreateByte(dstIndex, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::asteriskBracketRegLiteral)
+    {
+      regsDescr = CreateByte(dstIndex, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind_addition);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+
+      int num = op.literal;
+      if(num < WORD_MIN || num > WORD_MAX)
+      {
+        std::cerr<<"Error: number out of signed 16b int range\n";
+        return;
+      }
+      m_MachineCode[m_CurrSection].push_back(num>>8);
+      m_MachineCode[m_CurrSection].push_back(num);
+      m_LocationCounter += 2;
+    }
+    else if(op.type == OperandSyntax::asteriskBracketRegSymbol)
+    {
+      regsDescr = CreateByte(dstIndex, RegNameToIndex(op.reg));
+      m_MachineCode[m_CurrSection].push_back(regsDescr);
+      addrMode = CreateByte(RegIndUpdate::c_noup, AdressingMethod::c_regind_addition);
+      m_MachineCode[m_CurrSection].push_back(addrMode);
+      m_LocationCounter += 2;
+
+      m_RelocationTable.RegisterRelocation(m_CurrSection, m_LocationCounter, RelocType::r_word, op.symbol, 0);
+      //at the end we need to fix rel table if sym is local
+      m_SymbolTable.InsertIfNotExist(op.symbol);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_MachineCode[m_CurrSection].push_back(0);
+      m_LocationCounter += 2;
+    }
+    else
+    {
+      std::cerr<<"Error: data instructions don't support chosen operand syntax\n";
+    }
+  }
 }
