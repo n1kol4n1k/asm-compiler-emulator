@@ -2,9 +2,11 @@
 #include <string.h>
 #include <string>
 #include "../inc/asmManager.h"
+#include <fstream>
 
 static bool OpenFile(int argc, char* argv[]);
 static std::string outputFileName;
+static std::string outputTextFileName = "asmOutput.txt";
 extern FILE* yyin;
 
 int main(int argc, char* argv[])
@@ -21,6 +23,10 @@ int main(int argc, char* argv[])
   ASMManager.FillPrevUnknownValues();
   ASMManager.UndefinedCheck();
   ASMManager.PatchRelocationTable();
+
+  //open file for writing
+  std::ofstream output("./" + outputTextFileName, std::ofstream::out);
+  ASMManager.WriteOutputFile(output);
   
   return 0;
 }

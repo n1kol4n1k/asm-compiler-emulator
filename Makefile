@@ -3,6 +3,7 @@ SRCS = \
 ./src/asmManager.cpp \
 ./src/asmSymTable.cpp \
 ./src/asmRelocTable.cpp \
+./src/helpers.cpp \
 parser.c \
 lexer.c
 

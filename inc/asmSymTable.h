@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "types.h"
+#include <fstream>
 
 namespace assembler
 {
@@ -51,5 +52,9 @@ namespace assembler
       bool IsUndefined();//call at the end, check if there is any undefined non-extern symbols
       std::vector<std::string> GetSections();
       inline Content GetSymbolInfo(std::string name) { return m_Table[name]; }
+      void WriteTable(std::ofstream& file);
+    private: //helpers
+      std::string GetTypeString(SymType type);
+      std::string GetBindString(SymBind bind);
   };
 }

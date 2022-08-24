@@ -2,6 +2,7 @@
 #include "asmRelocTable.h"
 #include "../parser.h"
 #include "codeConstants.h"
+#include <fstream>
 
 #define ASMManager assembler::Manager::GetInstance()
 #define OP_SYNTAX assembler::OperandSyntax
@@ -97,6 +98,8 @@ namespace assembler
       void UndefinedCheck();
       void PatchRelocationTable();
 
+      void WriteOutputFile(std::ofstream& file);
+
     private: //helper functions
       void InsertWord(std::string secName, addressType locCounter, word value);
       void AssignLabels();
@@ -105,5 +108,6 @@ namespace assembler
       ubyte CreateByte(ubyte up_4b, ubyte low_4b);
       void ProcessJumpInstruction(InstructionTypes jumpType, operandInfo op);
       void ProcessDataInstruction(InstructionTypes instrType, std::string regD, operandInfo op);
+      void WriteMachineCode(std::ofstream& file, std::string sctn);
   };
 }

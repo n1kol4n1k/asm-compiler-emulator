@@ -1,4 +1,5 @@
 #include "../inc/asmSymTable.h"
+#include "../inc/helpers.h"
 #include <iostream>
 
 namespace assembler
@@ -101,4 +102,43 @@ namespace assembler
     return ret;
   }
 
+  void SymTable::WriteTable(std::ofstream& file)
+  {
+    file<<"Value\tType\tBind\tSection\tName\n";
+    for(auto it : m_Table)
+    {
+      file<<GetHexString(it.second.value)<<"\t"
+        <<GetTypeString(it.second.type)<<"\t"
+        <<GetBindString(it.second.bind)<<"\t"
+        <<it.second.section<<"\t"
+        <<it.first<<"\n";
+    }
+  }
+
+  std::string SymTable::GetTypeString(SymType type)
+  {
+    switch (type)
+    {
+    case SymType::SCTN :
+      return "SCTN";
+    case SymType::NOTYP :
+      return "NOTYP";
+    default:
+      return "Error";
+    }
+  }
+  std::string SymTable::GetBindString(SymBind bind)
+  {
+    switch (bind)
+    {
+    case SymBind::EXTERN :
+      return "EXTN";
+    case SymBind::GLOBAL :
+      return "GLOB";
+    case SymBind::LOCAL :
+      return "LOCL";
+    default:
+      return "Error";
+    }
+  }
 }

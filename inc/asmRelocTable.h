@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "types.h"
+#include <fstream>
 
 namespace assembler
 {
@@ -27,5 +28,8 @@ namespace assembler
     public:
       void RegisterRelocation(std::string section, addressType off, RelocType type, std::string sym, byte add);
       inline std::vector<Content>& GetRelocTable(std::string sec) { return m_Table[sec]; }
+      void WriteTable(std::ofstream& file, std::string sctn);
+    private: //helpers
+      std::string GetTypeString(RelocType type);
   };
 }

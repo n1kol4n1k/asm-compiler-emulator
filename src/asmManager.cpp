@@ -1,4 +1,5 @@
 #include "../inc/asmManager.h"
+#include "../inc/helpers.h"
 #include <iostream>
 
 namespace assembler
@@ -755,6 +756,41 @@ namespace assembler
     else
     {
       std::cerr<<"Error: data instructions don't support chosen operand syntax\n";
+    }
+  }
+
+  void Manager::WriteOutputFile(std::ofstream& file)
+  {
+    if(file.is_open())
+    {
+      file<<"Symbol Table\n";
+      m_SymbolTable.WriteTable(file);
+      for(std::string sctn : m_SymbolTable.GetSections())
+      {
+        file<<"Data of: "<<sctn<<"\n";
+        WriteMachineCode(file, sctn);
+        file<<"Relocation of: "<<sctn<<"\n";
+        m_RelocationTable.WriteTable(file, sctn);
+      }
+    }
+    else
+    {
+      std::cerr<<"Error: problem with opening file\n";
+    }
+  }
+
+  void Manager::WriteMachineCode(std::ofstream& file, std::string sctn)
+  {
+    for(int i = 0; i < m_MachineCode[sctn].size(); i+=2)
+    {
+      if(i + 1 == m_MachineCode[sctn].size())
+      {
+        file<<i<<" : "<<GetHexString(m_MachineCode[sctn][i])<<"\n";
+      }
+      else
+      {
+        file<<i<<" : "<<GetHexString(m_MachineCode[sctn][i])<<" "<<GetHexString(m_MachineCode[sctn][i+1])<<"\n";
+      }
     }
   }
 }
