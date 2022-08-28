@@ -56,5 +56,6 @@ namespace assembler
     private: //helpers
       std::string GetTypeString(SymType type);
       std::string GetBindString(SymBind bind);
+      void FillUndefinedSections();
   };
 }

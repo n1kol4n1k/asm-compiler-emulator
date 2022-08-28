@@ -104,6 +104,7 @@ namespace assembler
 
   void SymTable::WriteTable(std::ofstream& file)
   {
+    FillUndefinedSections();
     file<<"Value\tType\tBind\tSection\tName\n";
     for(auto it : m_Table)
     {
@@ -139,6 +140,17 @@ namespace assembler
       return "LOCL";
     default:
       return "Error";
+    }
+  }
+
+  void SymTable::FillUndefinedSections()
+  {
+    for(auto& it : m_Table)
+    {
+      if(it.second.section == "")
+      {
+        it.second.section = "UND";
+      }
     }
   }
 }

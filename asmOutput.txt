@@ -3,16 +3,16 @@ Value	Type	Bind	Section	Name
 0	SCTN	LOCL	my_data	my_data
 e	NOTYP	LOCL	my_data	destinations
 a	NOTYP	GLOB	my_data	value5
-0	NOTYP	EXTN		mathMul
+0	NOTYP	EXTN	UND	mathMul
 6	NOTYP	GLOB	my_data	value3
-0	NOTYP	EXTN		mathSub
-0	NOTYP	EXTN		mathDiv
+0	NOTYP	EXTN	UND	mathSub
+0	NOTYP	EXTN	UND	mathDiv
 c	NOTYP	GLOB	my_data	value6
 8	NOTYP	GLOB	my_data	value4
 0	NOTYP	GLOB	my_code	my_start
 4	NOTYP	GLOB	my_data	value2
 0	NOTYP	GLOB	my_data	value0
-0	NOTYP	EXTN		mathAdd
+0	NOTYP	EXTN	UND	mathAdd
 2	NOTYP	GLOB	my_data	value1
 0	SCTN	LOCL	my_code	my_code
 Data of: my_data
