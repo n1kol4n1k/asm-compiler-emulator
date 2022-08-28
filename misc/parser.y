@@ -90,6 +90,7 @@ program
   : 
   | line_compl
   | line_compl T_NEWLINE program
+  | T_NEWLINE program
   ;
 line_compl
   : line
