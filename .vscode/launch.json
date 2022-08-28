@@ -7,7 +7,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/asembler",
       "args": [
-        "./tests/test3.s"
+        "./tests/main.s"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",

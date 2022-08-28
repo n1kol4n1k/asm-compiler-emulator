@@ -97,9 +97,9 @@ namespace assembler
       if(it->second == false) //literal
       {
         int num = std::stoi(it->first);
-        if(num < WORD_MIN || num > WORD_MAX)
+        if(IsNumInRange(num, false) == false)
         {
-          std::cerr<<"Error: number out of signed 16b int range\n";
+          std::cerr<<"Error: number out of range\n";
           return;
         }
         m_MachineCode[m_CurrSection].push_back(num);
@@ -321,7 +321,7 @@ namespace assembler
   void Manager::ProcessStr(std::string regD, operandInfo op)
   {
     AssignLabels();
-    ProcessDataInstruction(InstructionTypes::c_ldr, regD, op);
+    ProcessDataInstruction(InstructionTypes::c_str, regD, op);
   }
 
   //Cleanup
@@ -484,9 +484,9 @@ namespace assembler
       m_LocationCounter += 2;
 
       int num = op.literal;
-      if(num < WORD_MIN || num > WORD_MAX)
+      if(IsNumInRange(num, false) == false)
       {
-        std::cerr<<"Error: number out of signed 16b int range\n";
+        std::cerr<<"Error: number out range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -534,9 +534,9 @@ namespace assembler
       m_LocationCounter += 2;
 
       int num = op.literal;
-      if(num < WORD_MIN || num > WORD_MAX)
+      if(IsNumInRange(num, false) == false)
       {
-        std::cerr<<"Error: number out of signed 16b int range\n";
+        std::cerr<<"Error: number out of range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -584,9 +584,9 @@ namespace assembler
       m_LocationCounter += 2;
 
       int num = op.literal;
-      if(num < WORD_MIN || num > WORD_MAX)
+      if(IsNumInRange(num, false) == false)
       {
-        std::cerr<<"Error: number out of signed 16b int range\n";
+        std::cerr<<"Error: number out of range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -631,9 +631,9 @@ namespace assembler
       m_LocationCounter += 2;
 
       int num = op.literal;
-      if(num < WORD_MIN || num > WORD_MAX)
+      if(IsNumInRange(num, false) == false)
       {
-        std::cerr<<"Error: number out of signed 16b int range\n";
+        std::cerr<<"Error: number out of range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -665,9 +665,9 @@ namespace assembler
       m_LocationCounter += 2;
       
       int num = op.literal;
-      if(num < WORD_MIN || num > WORD_MAX)
+      if(IsNumInRange(num, false) == false)
       {
-        std::cerr<<"Error: number out of signed 16b int range\n";
+        std::cerr<<"Error: number out of range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
@@ -720,7 +720,7 @@ namespace assembler
       m_MachineCode[m_CurrSection].push_back(addrMode);
       m_LocationCounter += 2;
     }
-    else if(op.type == OperandSyntax::asteriskBracketRegLiteral)
+    else if(op.type == OperandSyntax::bracketRegLiteral)
     {
       regsDescr = CreateByte(dstIndex, RegNameToIndex(op.reg));
       m_MachineCode[m_CurrSection].push_back(regsDescr);
@@ -729,16 +729,16 @@ namespace assembler
       m_LocationCounter += 2;
 
       int num = op.literal;
-      if(num < WORD_MIN || num > WORD_MAX)
+      if(IsNumInRange(num, false) == false)
       {
-        std::cerr<<"Error: number out of signed 16b int range\n";
+        std::cerr<<"Error: number out of range\n";
         return;
       }
       m_MachineCode[m_CurrSection].push_back(num>>8);
       m_MachineCode[m_CurrSection].push_back(num);
       m_LocationCounter += 2;
     }
-    else if(op.type == OperandSyntax::asteriskBracketRegSymbol)
+    else if(op.type == OperandSyntax::bracketRegSymbol)
     {
       regsDescr = CreateByte(dstIndex, RegNameToIndex(op.reg));
       m_MachineCode[m_CurrSection].push_back(regsDescr);
@@ -791,6 +791,18 @@ namespace assembler
       {
         file<<i<<" : "<<GetHexString(m_MachineCode[sctn][i])<<" "<<GetHexString(m_MachineCode[sctn][i+1])<<"\n";
       }
+    }
+  }
+
+  bool Manager::IsNumInRange(int num, bool isSigned)
+  {
+    if(isSigned == true)
+    {
+      return num >= WORD_MIN && num <= WORD_MAX;
+    }
+    else
+    {
+      return num <= UWORD_MAX;
     }
   }
 }

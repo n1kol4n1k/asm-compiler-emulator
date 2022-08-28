@@ -68,7 +68,11 @@
   yylval.num = atoi(yytext);
   return T_NUM; 
 }
-[a-zA-Z]+ {
+[+-]?"0"[xX][0-9A-F]+ { 
+  yylval.num = strtol(yytext, nullptr, 16);
+  return T_NUM; 
+}
+[a-zA-Z][0-9a-zA-Z_]* {
   size_t len = strnlen(yytext, 32);
 	char* buf = (char*)malloc(len + 1);
 	strncpy(buf, yytext, len);

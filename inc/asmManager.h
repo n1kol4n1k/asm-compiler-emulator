@@ -109,5 +109,6 @@ namespace assembler
       void ProcessJumpInstruction(InstructionTypes jumpType, operandInfo op);
       void ProcessDataInstruction(InstructionTypes instrType, std::string regD, operandInfo op);
       void WriteMachineCode(std::ofstream& file, std::string sctn);
+      bool IsNumInRange(int num, bool isSigned);
   };
 }
