@@ -897,7 +897,7 @@ namespace assembler
       m_SymbolTable.WriteTable(file);
       for(std::string sctn : m_SymbolTable.GetSections())
       {
-        file<<"Data of: "<<sctn<<"\n";
+        file<<"\nData of: "<<sctn<<"\n";
         WriteMachineCode(file, sctn);
         file<<"Relocation of: "<<sctn<<"\n";
         m_RelocationTable.WriteTable(file, sctn);
@@ -915,11 +915,11 @@ namespace assembler
     {
       if(i + 1 == m_MachineCode[sctn].size())
       {
-        file<<i<<" : "<<GetHexString(m_MachineCode[sctn][i])<<"\n";
+        file<<GetHexString(i)<<" : "<<GetHexString(m_MachineCode[sctn][i])<<"\n";
       }
       else
       {
-        file<<i<<" : "<<GetHexString(m_MachineCode[sctn][i])<<" "<<GetHexString(m_MachineCode[sctn][i+1])<<"\n";
+        file<<GetHexString(i)<<" : "<<GetHexString(m_MachineCode[sctn][i])<<" "<<GetHexString(m_MachineCode[sctn][i+1])<<"\n";
       }
     }
   }
