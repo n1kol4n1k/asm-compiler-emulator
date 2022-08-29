@@ -91,6 +91,11 @@ namespace assembler
 
   void Manager::ProcessWord()
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     for(auto it = m_CurrArgs.rbegin(); it != m_CurrArgs.rend(); it++)
     {
@@ -120,6 +125,11 @@ namespace assembler
 
   void Manager::ProcessSkip(int literal)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     for(int i = 0; i < literal; i++)
     {
@@ -137,12 +147,22 @@ namespace assembler
 
   void Manager::ProcessHalt()
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_halt);
     m_LocationCounter++;
   }
   void Manager::ProcessInt(std::string regD)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_int);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), 0b1111);
@@ -151,6 +171,11 @@ namespace assembler
   }
   void Manager::ProcessIret()
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_iret);
     m_LocationCounter++;
@@ -162,17 +187,32 @@ namespace assembler
   }
   void Manager::ProcessRet()
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_ret);
     m_LocationCounter++;
   }
   void Manager::ProcessJmp(operandInfo op)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     ProcessJumpInstruction(InstructionTypes::c_jmp, op);
   }
   void Manager::ProcessJeq(operandInfo op)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     ProcessJumpInstruction(InstructionTypes::c_jeq, op);
   }
@@ -183,11 +223,21 @@ namespace assembler
   }
   void Manager::ProcessJgt(operandInfo op)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     ProcessJumpInstruction(InstructionTypes::c_jgt, op);
   }
   void Manager::ProcessPush(std::string regD)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     //implemented by str instruction
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_str);
@@ -199,6 +249,11 @@ namespace assembler
   }
   void Manager::ProcessPop(std::string regD)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     //implemented by ldr instruction
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_str);
@@ -210,6 +265,11 @@ namespace assembler
   }
   void Manager::ProcessXchg(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_xchg);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -218,6 +278,11 @@ namespace assembler
   }
   void Manager::ProcessAdd(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_add);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -226,6 +291,11 @@ namespace assembler
   }
   void Manager::ProcessSub(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_sub);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -234,6 +304,11 @@ namespace assembler
   }
   void Manager::ProcessMul(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_mul);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -242,6 +317,11 @@ namespace assembler
   }
   void Manager::ProcessDiv(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_div);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -250,6 +330,11 @@ namespace assembler
   }
   void Manager::ProcessCmp(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_cmp);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -258,6 +343,11 @@ namespace assembler
   }
   void Manager::ProcessNot(std::string regD)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_not);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), 0b1111);
@@ -266,6 +356,11 @@ namespace assembler
   }
   void Manager::ProcessAnd(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_and);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -274,6 +369,11 @@ namespace assembler
   }
   void Manager::ProcessOr(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_or);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -282,6 +382,11 @@ namespace assembler
   }
   void Manager::ProcessXor(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_xor);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -290,6 +395,11 @@ namespace assembler
   }
   void Manager::ProcessTest(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_test);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -298,6 +408,11 @@ namespace assembler
   }
   void Manager::ProcessShl(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_shl);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -306,6 +421,11 @@ namespace assembler
   }
   void Manager::ProcessShr(std::string regD, std::string regS)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     m_MachineCode[m_CurrSection].push_back(InstructionTypes::c_shr);
     ubyte regsDescr = CreateByte(RegNameToIndex(regD), RegNameToIndex(regS));
@@ -315,11 +435,21 @@ namespace assembler
   }
   void Manager::ProcessLdr(std::string regD, operandInfo op)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     ProcessDataInstruction(InstructionTypes::c_ldr, regD, op);
   }
   void Manager::ProcessStr(std::string regD, operandInfo op)
   {
+    if(IsDefinedSection() == false)
+    {
+      std::cerr<<"Error: Not possible to write data in undefined section\n";
+      return;
+    }
     AssignLabels();
     ProcessDataInstruction(InstructionTypes::c_str, regD, op);
   }

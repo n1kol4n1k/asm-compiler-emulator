@@ -110,5 +110,6 @@ namespace assembler
       void ProcessDataInstruction(InstructionTypes instrType, std::string regD, operandInfo op);
       void WriteMachineCode(std::ofstream& file, std::string sctn);
       bool IsNumInRange(int num, bool isSigned);
+      bool IsDefinedSection() { return m_CurrSection != "undefined"; }
   };
 }

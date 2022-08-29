@@ -1,4 +1,5 @@
 #forward adressing
+.section mhm
 .word a, b
 .global b
 .word 10
