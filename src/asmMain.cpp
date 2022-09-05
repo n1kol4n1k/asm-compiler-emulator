@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
   yydebug = 0;
 
   yyparse();
-  ASMManager.FillPrevUnknownValues();
+  //ASMManager.FillPrevUnknownValues(); - not needed, linker will overwrite it anyway
   ASMManager.UndefinedCheck();
   ASMManager.PatchRelocationTable();
 

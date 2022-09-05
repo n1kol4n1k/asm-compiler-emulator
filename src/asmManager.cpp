@@ -86,6 +86,7 @@ namespace assembler
       m_LocationCounter = 0;
     }
     m_CurrSection = name;
+    AddSection(name);
     //u projektu se spominju sekcije sa istim imenom, sta onda?
   }
 
@@ -895,7 +896,7 @@ namespace assembler
     {
       file<<"Symbol Table\n";
       m_SymbolTable.WriteTable(file);
-      for(std::string sctn : m_SymbolTable.GetSections())
+      for(std::string sctn : m_Sections)
       {
         file<<"\nData of: "<<sctn<<"\n";
         WriteMachineCode(file, sctn);

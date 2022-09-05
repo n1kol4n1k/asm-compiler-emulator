@@ -49,6 +49,8 @@ namespace assembler
 
       RelocationTable m_RelocationTable; 
 
+      std::vector<std::string> m_Sections;
+
     public:
       static Manager& GetInstance();
 
@@ -99,6 +101,8 @@ namespace assembler
       void PatchRelocationTable();
 
       void WriteOutputFile(std::ofstream& file);
+
+      inline void AddSection(std::string sctn) { m_Sections.push_back(sctn); }
 
     private: //helper functions
       void InsertWord(std::string secName, addressType locCounter, word value);
