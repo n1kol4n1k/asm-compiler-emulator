@@ -3,3 +3,4 @@ lexer.h
 parser.c
 parser.h
 asembler
+**/lnk*
